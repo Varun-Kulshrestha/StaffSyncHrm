@@ -1,0 +1,13 @@
+{
+  "name": "staffsync-hrm",
+  "version": "1.0.0",
+  "description": "StaffSync HRM - Enterprise Workforce Management (Module 1 Auth & RBAC)",
+  "scripts": {
+    "start:backend": "cd backend && npm start",
+    "start:frontend": "cd frontend && npm run dev",
+    "test:api": "node automation/backend-api-check.js"
+  },
+  "keywords": ["staffsync", "hrm", "sdet", "qa-automation", "rbac", "auth"],
+  "author": "StaffSync Engineering Team",
+  "license": "ISC"
+}
