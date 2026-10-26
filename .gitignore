@@ -31,3 +31,9 @@ Thumbs.db
 .vscode/
 *.swp
 *.swo
+
+# Secrets & Local Credentials
+credentials.md
+*credentials*.md
+*.secret.*
+
