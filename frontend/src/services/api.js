@@ -83,3 +83,25 @@ export const leaveApi = {
     })
 };
 
+export const attendanceApi = {
+  clockIn: () =>
+    apiRequest('/attendance/clock-in', {
+      method: 'POST'
+    }),
+  clockOut: () =>
+    apiRequest('/attendance/clock-out', {
+      method: 'POST'
+    }),
+  getToday: () => apiRequest('/attendance/today'),
+  getHistory: (month, year) => {
+    const params = new URLSearchParams();
+    if (month) params.set('month', month);
+    if (year) params.set('year', year);
+    const qs = params.toString();
+    return apiRequest(`/attendance/history${qs ? `?${qs}` : ''}`);
+  },
+  getAdminDailyReport: (date) =>
+    apiRequest(`/attendance/admin/daily-report${date ? `?date=${date}` : ''}`)
+};
+
+

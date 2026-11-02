@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { Users, UserPlus, Clock, Building2 } from 'lucide-react';
 import EmployeeDirectory from '../components/employees/EmployeeDirectory';
 import PendingApprovalsQueue from '../components/leaves/PendingApprovalsQueue';
+import AdminDailyAttendanceReport from '../components/attendance/AdminDailyAttendanceReport';
 
 export default function HRDashboard() {
   const { user } = useAuth();
@@ -76,6 +77,9 @@ export default function HRDashboard() {
 
         {/* Sprint 3: Leave Authorization Review Queue */}
         <PendingApprovalsQueue />
+
+        {/* Sprint 4: Org-Wide Daily Attendance Roster */}
+        <AdminDailyAttendanceReport />
       </main>
     </div>
   );

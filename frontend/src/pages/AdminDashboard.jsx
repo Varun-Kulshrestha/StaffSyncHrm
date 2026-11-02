@@ -5,6 +5,7 @@ import { authApi } from '../services/api';
 import { Shield, Users, Activity, Server, RefreshCw, UserCheck, UserX } from 'lucide-react';
 import EmployeeDirectory from '../components/employees/EmployeeDirectory';
 import PendingApprovalsQueue from '../components/leaves/PendingApprovalsQueue';
+import AdminDailyAttendanceReport from '../components/attendance/AdminDailyAttendanceReport';
 
 export default function AdminDashboard() {
   const { user } = useAuth();
@@ -157,6 +158,9 @@ export default function AdminDashboard() {
 
         {/* Sprint 3: Leave Authorization Review Queue */}
         <PendingApprovalsQueue />
+
+        {/* Sprint 4: Org-Wide Daily Attendance Roster */}
+        <AdminDailyAttendanceReport />
       </main>
     </div>
   );

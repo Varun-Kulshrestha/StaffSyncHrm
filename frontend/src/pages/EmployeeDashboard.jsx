@@ -5,11 +5,14 @@ import { authApi } from '../services/api';
 import { User, ShieldAlert, AlertTriangle, CheckCircle, Clock, CalendarCheck } from 'lucide-react';
 import ReadOnlyProfileCard from '../components/employees/ReadOnlyProfileCard';
 import LeaveBalanceCards from '../components/leaves/LeaveBalanceCards';
+import ClockWidget from '../components/attendance/ClockWidget';
+import TimesheetCalendar from '../components/attendance/TimesheetCalendar';
 
 export default function EmployeeDashboard() {
   const { user } = useAuth();
   const [testResult, setTestResult] = useState(null);
   const [testingPrivilege, setTestingPrivilege] = useState(false);
+  const [attendanceRefresh, setAttendanceRefresh] = useState(0);
 
   // Test calling admin-only endpoint with Employee credentials (DEFECT-003)
   const testAdminEndpointAccess = async () => {
@@ -169,6 +172,10 @@ export default function EmployeeDashboard() {
 
         {/* Sprint 3: Statutory Leave Quotas & Balances */}
         <LeaveBalanceCards />
+
+        {/* Sprint 4: Attendance Punch & Working Hours */}
+        <ClockWidget onSessionChange={() => setAttendanceRefresh((prev) => prev + 1)} />
+        <TimesheetCalendar refreshTrigger={attendanceRefresh} />
       </main>
     </div>
   );

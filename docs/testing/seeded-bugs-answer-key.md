@@ -152,4 +152,47 @@
 * **Expected Behavior:** `locked_days` should decrement by 3, releasing the days back to the employee's available balance.
 * **Actual Behavior:** `leave_requests.status` becomes `REJECTED`, but `locked_days` remains 3 forever, permanently withholding those days from the employee.
 
+---
+
+### DEFECT-010: UTC Date Parsing Offset in Daily Clock-In
+* **Module:** MOD-04: Attendance & Timesheet Management
+* **Subsystem / Source File:** `backend/src/controllers/attendanceController.js` (`clockIn`)
+* **Severity:** Medium
+* **Bug Description:**
+  The date column is populated using `.toISOString().split('T')[0]` (UTC date) rather than local operational timezone formatting. Shifts commencing during late evening hours in local time will have their records attached to the previous UTC day.
+* **Reproduction Steps:**
+  1. Trigger `POST /api/v1/attendance/clock-in` during evening/night hours (e.g. 11:30 PM IST, which is 6:00 PM UTC).
+  2. Inspect the generated attendance record's `date` field.
+* **Expected Behavior:** Date matches local organizational work date (e.g., `2026-11-04`).
+* **Actual Behavior:** Date records as UTC date, misaligning timesheet logs across midnight boundaries.
+
+---
+
+### DEFECT-011: Missing Concurrency Gate on Simultaneous Session Creation
+* **Module:** MOD-04: Attendance & Timesheet Management
+* **Subsystem / Source File:** `backend/src/controllers/attendanceController.js` (`clockIn`)
+* **Severity:** High
+* **Bug Description:**
+  In `POST /api/v1/attendance/clock-in`, there is no concurrency gate or table mutex. Rapid simultaneous clock-in clicks (dispatched concurrently within 50ms) both evaluate `activeSession` as null and insert duplicate open sessions for the same user.
+* **Reproduction Steps:**
+  1. Authenticate as employee.
+  2. Dispatch two simultaneous `POST /api/v1/attendance/clock-in` requests using `Promise.all()`.
+* **Expected Behavior:** First request returns HTTP 201 Created; second request returns HTTP 400 Bad Request with code `"ACTIVE_SESSION_EXISTS"`.
+* **Actual Behavior:** Both requests return HTTP 201 Created, creating duplicate concurrent `IN_PROGRESS` sessions for the employee.
+
+---
+
+### DEFECT-012: Off-By-One Boundary Error on Half-Day Status Classification
+* **Module:** MOD-04: Attendance & Timesheet Management
+* **Subsystem / Source File:** `backend/src/controllers/attendanceController.js` (`clockOut`)
+* **Severity:** High
+* **Bug Description:**
+  The statutory threshold for `HALF_DAY` classification implements a strict inequality `if (durationMinutes > 240)` instead of `if (durationMinutes >= 240)`.
+* **Reproduction Steps:**
+  1. Open a clock-in session.
+  2. Clock out after exactly 240.0 minutes (4.0 hours).
+* **Expected Behavior:** Session classified as `HALF_DAY` (since 240 minutes meets statutory half-day duration).
+* **Actual Behavior:** Strict `> 240` condition evaluates to false, improperly tagging the session as `ABSENT`.
+
+
 

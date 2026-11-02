@@ -335,6 +335,103 @@ function initDb() {
     }
     console.log('[DB] Baseline pending leave requests seeded.');
   }
+
+  // ==========================================
+  // SPRINT 4: Attendance & Timesheet Records Table
+  // ==========================================
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS attendance_records (
+      id VARCHAR(36) PRIMARY KEY,
+      user_id VARCHAR(36) NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      employee_id VARCHAR(36) NOT NULL REFERENCES employees(id) ON DELETE CASCADE,
+      date DATE NOT NULL,
+      clock_in_time TIMESTAMP NOT NULL,
+      clock_out_time TIMESTAMP NULL,
+      duration_minutes INT NOT NULL DEFAULT 0,
+      status VARCHAR(20) NOT NULL DEFAULT 'IN_PROGRESS' CHECK (status IN ('PRESENT', 'HALF_DAY', 'ABSENT', 'IN_PROGRESS')),
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_attendance_user_date ON attendance_records(user_id, date);
+    CREATE INDEX IF NOT EXISTS idx_attendance_org_roster ON attendance_records(date, status);
+  `);
+
+  // Seed baseline attendance records if empty
+  const countAttendance = db.prepare('SELECT COUNT(*) as count FROM attendance_records').get();
+  if (countAttendance.count === 0) {
+    const seedAttendance = [
+      {
+        id: 'att-rec-101',
+        user_id: 'usr_99812',
+        employee_id: 'EMP-001',
+        date: '2026-11-02',
+        clock_in_time: '2026-11-02T09:00:00Z',
+        clock_out_time: '2026-11-02T17:30:00Z',
+        duration_minutes: 510,
+        status: 'PRESENT'
+      },
+      {
+        id: 'att-rec-102',
+        user_id: 'usr_99813',
+        employee_id: 'EMP-002',
+        date: '2026-11-02',
+        clock_in_time: '2026-11-02T09:15:00Z',
+        clock_out_time: '2026-11-02T13:45:00Z',
+        duration_minutes: 270,
+        status: 'HALF_DAY'
+      },
+      {
+        id: 'att-rec-103',
+        user_id: 'usr_99814',
+        employee_id: 'EMP-003',
+        date: '2026-11-02',
+        clock_in_time: '2026-11-02T10:00:00Z',
+        clock_out_time: '2026-11-02T13:00:00Z',
+        duration_minutes: 180,
+        status: 'ABSENT'
+      },
+      {
+        id: 'att-rec-104',
+        user_id: 'usr_99812',
+        employee_id: 'EMP-001',
+        date: '2026-11-03',
+        clock_in_time: '2026-11-03T08:55:00Z',
+        clock_out_time: '2026-11-03T17:15:00Z',
+        duration_minutes: 500,
+        status: 'PRESENT'
+      },
+      {
+        id: 'att-rec-105',
+        user_id: 'usr_99813',
+        employee_id: 'EMP-002',
+        date: '2026-11-03',
+        clock_in_time: '2026-11-03T09:00:00Z',
+        clock_out_time: null,
+        duration_minutes: 0,
+        status: 'IN_PROGRESS'
+      },
+      {
+        id: 'att-rec-106',
+        user_id: 'usr_99814',
+        employee_id: 'EMP-003',
+        date: '2026-11-03',
+        clock_in_time: '2026-11-03T13:00:00Z',
+        clock_out_time: '2026-11-03T17:00:00Z',
+        duration_minutes: 240,
+        status: 'HALF_DAY'
+      }
+    ];
+
+    const insertAtt = db.prepare(`
+      INSERT INTO attendance_records (id, user_id, employee_id, date, clock_in_time, clock_out_time, duration_minutes, status)
+      VALUES (@id, @user_id, @employee_id, @date, @clock_in_time, @clock_out_time, @duration_minutes, @status)
+    `);
+
+    for (const att of seedAttendance) {
+      insertAtt.run(att);
+    }
+    console.log('[DB] Historical attendance records seeded.');
+  }
 }
 
 module.exports = { initDb };
@@ -342,4 +439,5 @@ module.exports = { initDb };
 if (require.main === module) {
   initDb();
 }
+
 
