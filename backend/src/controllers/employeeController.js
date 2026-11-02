@@ -1,4 +1,5 @@
 const db = require('../config/db');
+const bcrypt = require('bcryptjs');
 
 /**
  * GET /api/v1/employees
@@ -105,7 +106,7 @@ function getEmployeeById(req, res) {
  * Restricted to ADMIN and HR
  */
 function createEmployee(req, res) {
-  const { first_name, last_name, email, department, designation, phone, date_of_joining } = req.body || {};
+  const { first_name, last_name, email, department, designation, phone, date_of_joining, password } = req.body || {};
 
   if (!first_name || !last_name || !email || !department || !designation || !phone || !date_of_joining) {
     return res.status(400).json({
@@ -114,8 +115,10 @@ function createEmployee(req, res) {
     });
   }
 
+  const cleanEmail = email.trim().toLowerCase();
+
   // Validate email uniqueness
-  const existing = db.prepare('SELECT id FROM employees WHERE email = ?').get(email.trim().toLowerCase());
+  const existing = db.prepare('SELECT id FROM employees WHERE email = ?').get(cleanEmail);
   if (existing) {
     return res.status(409).json({
       status: 'error',
@@ -132,30 +135,70 @@ function createEmployee(req, res) {
   }
   const newId = `EMP-${String(maxNum + 1).padStart(3, '0')}`;
 
+  // Automatically provision user login account
+  const defaultPassword = password && password.trim() ? password.trim() : 'Emp@123';
+  const salt = bcrypt.genSaltSync(10);
+  const passwordHash = bcrypt.hashSync(defaultPassword, salt);
+  const userRole = department.trim() === 'HR' ? 'HR' : 'EMPLOYEE';
+  const userId = 'usr_' + Date.now().toString(36) + Math.random().toString(36).substr(2, 4);
+
+  // Check if users entry already exists
+  const existingUser = db.prepare('SELECT id FROM users WHERE email = ?').get(cleanEmail);
+  let finalUserId = userId;
+  if (!existingUser) {
+    db.prepare(`
+      INSERT INTO users (id, email, password_hash, role, is_active)
+      VALUES (?, ?, ?, ?, 1)
+    `).run(userId, cleanEmail, passwordHash, userRole);
+  } else {
+    finalUserId = existingUser.id;
+  }
+
+  // Insert employee record linked to user account
   const insertStmt = db.prepare(`
     INSERT INTO employees (id, user_id, first_name, last_name, email, department, designation, phone, date_of_joining, is_active)
-    VALUES (?, NULL, ?, ?, ?, ?, ?, ?, ?, 1)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 1)
   `);
 
   insertStmt.run(
     newId,
+    finalUserId,
     first_name.trim(),
     last_name.trim(),
-    email.trim().toLowerCase(),
+    cleanEmail,
     department.trim(),
     designation.trim(),
     phone.trim(),
     date_of_joining
   );
 
+  // Initialize baseline statutory leave balances
+  const existingBalances = db.prepare('SELECT COUNT(*) as count FROM leave_balances WHERE user_id = ?').get(finalUserId);
+  if (existingBalances.count === 0) {
+    const types = [
+      { type: 'SICK', alloc: 12 },
+      { type: 'CASUAL', alloc: 12 },
+      { type: 'PRIVILEGE', alloc: 15 }
+    ];
+    for (const t of types) {
+      const balId = 'bal_' + Math.random().toString(36).substr(2, 8);
+      db.prepare(`
+        INSERT INTO leave_balances (id, user_id, employee_id, leave_type, allocated_days, consumed_days, locked_days)
+        VALUES (?, ?, ?, ?, ?, 0, 0)
+      `).run(balId, finalUserId, newId, t.type, t.alloc);
+    }
+  }
+
   const created = db.prepare('SELECT * FROM employees WHERE id = ?').get(newId);
 
   return res.status(201).json({
     status: 'success',
-    message: 'Employee onboarded successfully',
+    message: 'Employee onboarded and login account provisioned successfully',
     data: {
       ...created,
-      is_active: Boolean(created.is_active)
+      is_active: Boolean(created.is_active),
+      login_email: cleanEmail,
+      default_password: defaultPassword
     }
   });
 }

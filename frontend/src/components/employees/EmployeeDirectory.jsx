@@ -39,7 +39,8 @@ export default function EmployeeDirectory() {
     department: 'Engineering',
     designation: '',
     phone: '',
-    date_of_joining: new Date().toISOString().split('T')[0]
+    date_of_joining: new Date().toISOString().split('T')[0],
+    password: 'Emp@123'
   });
 
   const fetchEmployees = async (pageToFetch = meta.page) => {
@@ -80,7 +81,8 @@ export default function EmployeeDirectory() {
     try {
       const res = await employeeApi.create(addForm);
       if (res.status === 'success') {
-        setMessage(`Employee ${res.data.first_name} ${res.data.last_name} onboarded successfully!`);
+        const pwd = res.data?.default_password || addForm.password || 'Emp@123';
+        setMessage(`Employee ${res.data.first_name} ${res.data.last_name} onboarded! Login: ${res.data.email} | Password: ${pwd}`);
         setIsAddOpen(false);
         setAddForm({
           first_name: '',
@@ -89,7 +91,8 @@ export default function EmployeeDirectory() {
           department: 'Engineering',
           designation: '',
           phone: '',
-          date_of_joining: new Date().toISOString().split('T')[0]
+          date_of_joining: new Date().toISOString().split('T')[0],
+          password: 'Emp@123'
         });
         fetchEmployees(1);
       }
@@ -459,6 +462,18 @@ export default function EmployeeDirectory() {
                     onChange={(e) => setAddForm({ ...addForm, date_of_joining: e.target.value })}
                   />
                 </div>
+              </div>
+
+              <div className="form-group" style={{ marginTop: '0.5rem' }}>
+                <label className="form-label">Account Login Password (Optional, Default: Emp@123)</label>
+                <input
+                  type="text"
+                  className="form-input"
+                  style={{ paddingLeft: '1rem' }}
+                  placeholder="Default: Emp@123"
+                  value={addForm.password}
+                  onChange={(e) => setAddForm({ ...addForm, password: e.target.value })}
+                />
               </div>
 
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', marginTop: '1.5rem' }}>
