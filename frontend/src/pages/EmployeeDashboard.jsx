@@ -3,6 +3,7 @@ import Navbar from '../components/Navbar';
 import { useAuth } from '../context/AuthContext';
 import { authApi } from '../services/api';
 import { User, ShieldAlert, AlertTriangle, CheckCircle, Clock, CalendarCheck } from 'lucide-react';
+import ReadOnlyProfileCard from '../components/employees/ReadOnlyProfileCard';
 
 export default function EmployeeDashboard() {
   const { user } = useAuth();
@@ -161,6 +162,9 @@ export default function EmployeeDashboard() {
             )}
           </div>
         </div>
+
+        {/* Sprint 2: Verified Personal Personnel Profile */}
+        <ReadOnlyProfileCard />
       </main>
     </div>
   );

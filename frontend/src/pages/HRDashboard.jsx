@@ -2,6 +2,7 @@ import React from 'react';
 import Navbar from '../components/Navbar';
 import { useAuth } from '../context/AuthContext';
 import { Users, UserPlus, Clock, Building2 } from 'lucide-react';
+import EmployeeDirectory from '../components/employees/EmployeeDirectory';
 
 export default function HRDashboard() {
   const { user } = useAuth();
@@ -69,13 +70,8 @@ export default function HRDashboard() {
           </div>
         </div>
 
-        {/* Informative placeholder container */}
-        <div className="glass-card" style={{ padding: '2rem', textAlign: 'center' }}>
-          <h3 style={{ fontSize: '1.25rem', marginBottom: '0.5rem' }}>HR Operations Hub</h3>
-          <p style={{ color: 'var(--text-muted)', maxWidth: '600px', margin: '0 auto' }}>
-            HR management portal authenticated and connected to SQLite datastore. Employee directory controls and leave approvals will activate here.
-          </p>
-        </div>
+        {/* Sprint 2: Employee Lifecycle & Directory Management */}
+        <EmployeeDirectory />
       </main>
     </div>
   );

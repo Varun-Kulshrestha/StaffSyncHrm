@@ -3,6 +3,7 @@ import Navbar from '../components/Navbar';
 import { useAuth } from '../context/AuthContext';
 import { authApi } from '../services/api';
 import { Shield, Users, Activity, Server, RefreshCw, UserCheck, UserX } from 'lucide-react';
+import EmployeeDirectory from '../components/employees/EmployeeDirectory';
 
 export default function AdminDashboard() {
   const { user } = useAuth();
@@ -149,6 +150,9 @@ export default function AdminDashboard() {
             </div>
           </div>
         </div>
+
+        {/* Sprint 2: Employee Lifecycle & Directory Management */}
+        <EmployeeDirectory />
       </main>
     </div>
   );
