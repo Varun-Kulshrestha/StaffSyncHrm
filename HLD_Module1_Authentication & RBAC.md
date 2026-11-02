@@ -112,6 +112,11 @@ Guest / Unauthenticated
  Denied (403)
  Denied (403)
  Denied (401)
+/api/v1/auth/change-password
+ Execute (200 OK)
+ Execute (200 OK)
+ Execute (200 OK)
+ Denied (401)
 
 
 
@@ -258,9 +263,44 @@ Response Schema (200 OK):
   "success": true,
 
   "message": "Successfully logged out"
-
 }
 
+4.5 Change Password Endpoint
+Endpoint: POST /api/v1/auth/change-password
+Description: Securely modifies the password hash of the currently authenticated user session.
+Authentication: Required (JWT Bearer Token).
+
+Request Headers:
+Authorization: Bearer <JWT_TOKEN>
+
+Request Payload:
+{
+  "currentPassword": "OldPassword@123",
+  "newPassword": "MyNewPassword@456"
+}
+
+Validation Rules:
+- Current password matches stored Bcrypt hash.
+- New password minimum length >= 6 characters.
+
+Response Schemas:
+200 OK (Password Updated):
+{
+  "status": "success",
+  "message": "Password changed successfully! You can now use your new password."
+}
+
+400 Bad Request (Invalid parameters or weak length):
+{
+  "status": "error",
+  "message": "New password must be at least 6 characters long."
+}
+
+401 Unauthorized (Current password incorrect):
+{
+  "status": "error",
+  "message": "Current password is incorrect."
+}
 
 5. Data Model & Schema Design
 Entity Field Definitions: User

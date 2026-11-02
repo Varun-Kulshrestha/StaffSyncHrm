@@ -89,9 +89,11 @@ Feature 2: New Hire Onboarding
 User Story: As an HR Manager, I want to register a new employee through a validated form so that our directory accurately reflects the current workforce.
 Acceptance Criteria:
 The "Add Employee" action is visible and accessible only to Admin and HR roles.
-The creation form enforces mandatory fields: First Name, Last Name, Corporate Email, Department, Designation, and Start Date.
+The creation form enforces mandatory fields: First Name, Last Name, Corporate Email, Department, Designation, and Start Date, and accepts an optional initial login password (defaulting to "Emp@123").
 Corporate email must be validated against organizational format standards; submitting an already registered email halts submission with the clear message: "Corporate email already registered."
-Successful submission immediately adds the new hire to the directory and displays a confirmation notification.
+Auto-provisions a matching authenticated user account in the `users` table linked via foreign key `user_id`.
+Automatically initializes baseline statutory leave balances (Sick: 12d, Casual: 12d, Privilege: 15d) so new personnel can immediately access the self-service portal upon first login.
+Successful submission immediately adds the new hire to the directory and displays a confirmation notification containing their login credentials.
 Feature 3: Profile Updates & Role Assignments
 User Story: As an authorized HR representative, I want to update an employee's title and department so that promotions and team transfers are kept current.
 Acceptance Criteria:

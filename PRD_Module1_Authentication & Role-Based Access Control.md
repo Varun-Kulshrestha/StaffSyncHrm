@@ -69,9 +69,10 @@ Session persistence across page refreshes and multi-tab workflows.
 Immediate client-side alerts for missing mandatory inputs.
 Robust boundary guards preventing unauthenticated guests and unauthorized cross-role view hopping.
 Controlled account deactivation checks.
+Authenticated self-service password modification via global navigation modal dialog.
 Out of Scope (Future Releases)
-Public self-registration (accounts are strictly provisioned by internal admins).
-Self-service password reset / "Forgot Password" email delivery (Phase 2).
+Public self-registration (accounts are strictly provisioned by internal admins upon onboarding).
+Self-service password reset / "Forgot Password" email delivery for unauthenticated sessions (Phase 2).
 Single Sign-On (SSO via Google/Microsoft) and Multi-Factor Authentication (Phase 3).
 User avatar and biographical profile customization.
 
@@ -102,6 +103,14 @@ User Story: As an employee, I want actionable, unambiguous feedback when my logi
 Acceptance Criteria:
 Incorrect password or unregistered email submissions display the uniform banner: "Invalid email or password". The interface must never indicate whether the email or password specifically was incorrect.
 Deactivated employee accounts attempting to log in remain on the login screen and receive the clear notice: "Account is deactivated. Please contact admin."
+Feature 5: Authenticated Self-Service Password Management
+User Story: As an authenticated employee or administrator, I want to change my account password directly from the navigation bar so that I can update my credentials securely.
+Acceptance Criteria:
+A "Password" button in the global navbar opens the dedicated Change Password dialog from any dashboard view.
+The modal prompts for Current Password, New Password, and Confirm New Password.
+New password length must be validated to at least 6 characters.
+The backend verifies the authenticity of the current password using Bcrypt comparison before updating.
+Successful submission re-hashes the new password with Bcrypt (10 rounds), updates SQLite, and renders an instant confirmation toast.
 
 7. Non-Functional Requirements (NFRs)
 Usability: Form supports keyboard navigation (Tab between inputs, Enter key submission).

@@ -38,11 +38,13 @@ StaffSync HRM Architecture
   * `/admin/dashboard`: Infrastructure metrics, user accounts audit, and system health telemetry.
   * `/hr/dashboard`: Talent onboarding pipeline, department overview, and review actions.
   * `/employee/dashboard`: Self-service portal with profile verification and personal workflows.
+* **Self-Service Password Management (`<ChangePasswordModal />`):** Global navigation dialog allowing all authenticated personas to securely change their password with Bcrypt re-hashing.
 
 ### Module 02: Employee Lifecycle & Directory Management
 * **Personnel Directory (`<EmployeeDirectory />`):** Full-text real-time search across first/last names and corporate email addresses.
 * **Department Filtering:** Instant multi-department categorization (`Engineering`, `HR`, `Sales`, `Finance`, `Operations`).
 * **Workforce Actions:** Modal onboarding (`Add Employee`), profile modification (`Edit`), and soft-deletion offboarding (`Deactivate`).
+* **Automatic Account Provisioning:** Onboarding an employee automatically creates an active user login account in `users` (with custom or default password `Emp@123`) and initializes baseline statutory leave quotas.
 * **Verified Profile Card (`<ReadOnlyProfileCard />`):** Non-tamperable identity viewer for logged-in employees.
 
 ### Module 03: Leave Management & Approval Workflows

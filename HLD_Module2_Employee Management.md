@@ -187,7 +187,7 @@ Response (200 OK):
   }
 }
 2. POST /api/v1/employees
-Description: Creates and onboards a new employee profile.
+Description: Creates and onboards a new employee profile. Automatically provisions an authenticated user account in the `users` table linked via `user_id` and seeds default statutory leave balances.
 Authentication: Required (ADMIN or HR role enforced).
 Request Payload:
 
@@ -198,11 +198,17 @@ Request Payload:
   "department": "Engineering",
   "designation": "Cloud Security Architect",
   "phone": "+1-555-0144",
-  "date_of_joining": "2024-02-01"
+  "date_of_joining": "2024-02-01",
+  "password": "Emp@123"
 }
 
+Behavior & Side Effects:
+- Inserts employee into `employees` table.
+- Generates or links user login account in `users` (hashes password using Bcrypt 10 rounds; defaults to 'Emp@123' if omitted).
+- Provisions initial statutory leave allocations (12d Sick, 12d Casual, 15d Privilege) in `leave_balances`.
+
 Status Codes:
-201 Created: Employee record persisted successfully.
+201 Created: Employee and login account persisted successfully.
 400 Bad Request: Field validation error or invalid department.
 403 Forbidden: Authenticated user lacks ADMIN or HR role claims.
 409 Conflict: Unique constraint violation (email exists).
