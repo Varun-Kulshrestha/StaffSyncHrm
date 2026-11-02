@@ -5,6 +5,7 @@ const { initDb } = require('./database/initDb');
 const authRoutes = require('./routes/authRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const employeeRoutes = require('./routes/employeeRoutes');
+const leaveRoutes = require('./routes/leaveRoutes');
 const errorHandler = require('./middlewares/errorHandler');
 
 const app = express();
@@ -41,6 +42,7 @@ app.get('/api/health', (req, res) => {
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/admin', adminRoutes);
 app.use('/api/v1/employees', employeeRoutes);
+app.use('/api/v1/leaves', leaveRoutes);
 
 // Undefined Route Fallback (404)
 app.use((req, res) => {

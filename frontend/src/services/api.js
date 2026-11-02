@@ -66,3 +66,20 @@ export const employeeApi = {
       method: 'DELETE'
     })
 };
+
+export const leaveApi = {
+  getBalances: () => apiRequest('/leaves/balances'),
+  apply: (data) =>
+    apiRequest('/leaves/apply', {
+      method: 'POST',
+      body: JSON.stringify(data)
+    }),
+  getMyHistory: () => apiRequest('/leaves/my-history'),
+  getPendingQueue: () => apiRequest('/leaves/pending'),
+  updateStatus: (id, data) =>
+    apiRequest(`/leaves/${id}/status`, {
+      method: 'PATCH',
+      body: JSON.stringify(data)
+    })
+};
+

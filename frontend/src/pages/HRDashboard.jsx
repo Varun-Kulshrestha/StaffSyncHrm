@@ -3,6 +3,7 @@ import Navbar from '../components/Navbar';
 import { useAuth } from '../context/AuthContext';
 import { Users, UserPlus, Clock, Building2 } from 'lucide-react';
 import EmployeeDirectory from '../components/employees/EmployeeDirectory';
+import PendingApprovalsQueue from '../components/leaves/PendingApprovalsQueue';
 
 export default function HRDashboard() {
   const { user } = useAuth();
@@ -72,6 +73,9 @@ export default function HRDashboard() {
 
         {/* Sprint 2: Employee Lifecycle & Directory Management */}
         <EmployeeDirectory />
+
+        {/* Sprint 3: Leave Authorization Review Queue */}
+        <PendingApprovalsQueue />
       </main>
     </div>
   );

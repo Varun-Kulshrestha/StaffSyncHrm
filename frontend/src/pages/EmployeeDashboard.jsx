@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { authApi } from '../services/api';
 import { User, ShieldAlert, AlertTriangle, CheckCircle, Clock, CalendarCheck } from 'lucide-react';
 import ReadOnlyProfileCard from '../components/employees/ReadOnlyProfileCard';
+import LeaveBalanceCards from '../components/leaves/LeaveBalanceCards';
 
 export default function EmployeeDashboard() {
   const { user } = useAuth();
@@ -165,6 +166,9 @@ export default function EmployeeDashboard() {
 
         {/* Sprint 2: Verified Personal Personnel Profile */}
         <ReadOnlyProfileCard />
+
+        {/* Sprint 3: Statutory Leave Quotas & Balances */}
+        <LeaveBalanceCards />
       </main>
     </div>
   );

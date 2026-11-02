@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { authApi } from '../services/api';
 import { Shield, Users, Activity, Server, RefreshCw, UserCheck, UserX } from 'lucide-react';
 import EmployeeDirectory from '../components/employees/EmployeeDirectory';
+import PendingApprovalsQueue from '../components/leaves/PendingApprovalsQueue';
 
 export default function AdminDashboard() {
   const { user } = useAuth();
@@ -153,6 +154,9 @@ export default function AdminDashboard() {
 
         {/* Sprint 2: Employee Lifecycle & Directory Management */}
         <EmployeeDirectory />
+
+        {/* Sprint 3: Leave Authorization Review Queue */}
+        <PendingApprovalsQueue />
       </main>
     </div>
   );

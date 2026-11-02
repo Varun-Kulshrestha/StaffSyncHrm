@@ -109,3 +109,47 @@
 * **Expected Behavior:** For Page 1 with limit 5, offset should be `(1 - 1) * 5 = 0`, returning records 0 to 4.
 * **Actual Behavior:** For Page 1 with limit 5, offset evaluates to `1 * 5 = 5`, immediately skipping the first 5 records (`EMP-001` to `EMP-005`) and rendering records 5 to 9 instead.
 
+---
+
+### DEFECT-007: Balance Invariant Underflow Bypass (Leave Quota Overbooking)
+* **Module:** MOD-03: Leave Management & Approval Workflow
+* **Subsystem / Source File:** `backend/src/controllers/leaveController.js` (`applyLeave`)
+* **Severity:** Critical
+* **Bug Description:**
+  The validation logic checks `(balance.allocated_days - balance.consumed_days) <= 0` instead of verifying whether available days (`allocated - consumed - locked`) can accommodate `requested_days`.
+* **Reproduction Steps:**
+  1. Authenticate as employee (`employee@staffsync.com`).
+  2. With available Casual Leave quota of 9 days (or 1 day), submit a leave request for 15 days from `2026-11-20` to `2026-12-04`.
+  3. POST payload to `/api/v1/leaves/apply`.
+* **Expected Behavior:** Returns HTTP 400 Bad Request with message `"Insufficient leave balance"`.
+* **Actual Behavior:** Returns HTTP 201 Created and locks 15 days, sending net available balance into negative integers (`9 - 15 = -6`).
+
+---
+
+### DEFECT-008: Naive Date Collision Check on Overlapping Bookings
+* **Module:** MOD-03: Leave Management & Approval Workflow
+* **Subsystem / Source File:** `backend/src/controllers/leaveController.js` (`applyLeave`)
+* **Severity:** High
+* **Bug Description:**
+  Temporal collision verification implements an exact point-in-time check (`leave.start_date === start_date`) rather than interval intersection (`start_date <= existing.end_date && end_date >= existing.start_date`).
+* **Reproduction Steps:**
+  1. Have an active pending leave request for dates `2026-11-10` to `2026-11-12`.
+  2. Submit a new leave request spanning `2026-11-11` to `2026-11-13`.
+* **Expected Behavior:** Returns HTTP 409 Conflict with message `"Date collision with an existing leave request"`.
+* **Actual Behavior:** Since `2026-11-11 !== 2026-11-10`, the exact equality check passes, returning HTTP 201 Created and permitting double-booked time off.
+
+---
+
+### DEFECT-009: Abandoned Locked Days on Request Rejection
+* **Module:** MOD-03: Leave Management & Approval Workflow
+* **Subsystem / Source File:** `backend/src/controllers/leaveController.js` (`updateLeaveStatus`)
+* **Severity:** High
+* **Bug Description:**
+  When transitioning a leave request to `REJECTED`, the database update marks the request as `REJECTED` but omits decrementing `locked_days` in `leave_balances`.
+* **Reproduction Steps:**
+  1. Employee applies for 3 days of leave; `locked_days` increments from 0 to 3.
+  2. Admin or HR calls `PATCH /api/v1/leaves/:id/status` with `{ "status": "REJECTED" }`.
+* **Expected Behavior:** `locked_days` should decrement by 3, releasing the days back to the employee's available balance.
+* **Actual Behavior:** `leave_requests.status` becomes `REJECTED`, but `locked_days` remains 3 forever, permanently withholding those days from the employee.
+
+
