@@ -132,9 +132,61 @@ function getAdminStats(req, res) {
   });
 }
 
+/**
+ * POST /api/v1/auth/change-password
+ */
+function changePassword(req, res, next) {
+  try {
+    const userId = req.user.id;
+    const { currentPassword, newPassword } = req.body || {};
+
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({
+        status: 'error',
+        message: 'Current password and new password are required.'
+      });
+    }
+
+    if (newPassword.length < 6) {
+      return res.status(400).json({
+        status: 'error',
+        message: 'New password must be at least 6 characters long.'
+      });
+    }
+
+    const user = db.prepare('SELECT * FROM users WHERE id = ?').get(userId);
+    if (!user) {
+      return res.status(404).json({
+        status: 'error',
+        message: 'User account not found.'
+      });
+    }
+
+    const isMatch = bcrypt.compareSync(currentPassword, user.password_hash);
+    if (!isMatch) {
+      return res.status(401).json({
+        status: 'error',
+        message: 'Current password is incorrect.'
+      });
+    }
+
+    const salt = bcrypt.genSaltSync(10);
+    const newHash = bcrypt.hashSync(newPassword, salt);
+    db.prepare('UPDATE users SET password_hash = ? WHERE id = ?').run(newHash, userId);
+
+    return res.status(200).json({
+      status: 'success',
+      message: 'Password changed successfully! You can now use your new password.'
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
 module.exports = {
   login,
   getMe,
   logout,
-  getAdminStats
+  getAdminStats,
+  changePassword
 };

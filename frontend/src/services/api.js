@@ -36,7 +36,12 @@ export const authApi = {
     }),
   getMe: () => apiRequest('/auth/me'),
   logout: () => apiRequest('/auth/logout', { method: 'POST' }),
-  getAdminStats: () => apiRequest('/admin/stats')
+  getAdminStats: () => apiRequest('/admin/stats'),
+  changePassword: (data) =>
+    apiRequest('/auth/change-password', {
+      method: 'POST',
+      body: JSON.stringify(data)
+    })
 };
 
 export const employeeApi = {
